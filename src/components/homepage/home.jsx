@@ -130,12 +130,12 @@ const Home = () => {
                                                 return <span key={Math.random()}>{user}<br /></span>
                                             })}
 
-                                            <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-primary mt-3' onClick={() => addMember(task?.id)}>More Assigned</button>
+                                            <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-info mt-3' onClick={() => addMember(task?.id)}>More Assigned</button>
                                         </td>
                                         <td>
                                             {task?.status === "Complete" ? <button className={`me-2 btn btn-sm btn-secondary disabled`} onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button> : <button className='me-2 btn btn-sm btn-primary' onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button>}
 
-                                            <button className='me-2 btn btn-sm btn-primary' onClick={() => handleTaskStatusChange(task?.id, "Complete")}>Completed</button>
+                                            <button className='me-2 btn btn-sm btn-success' onClick={() => handleTaskStatusChange(task?.id, "Complete")}>Completed</button>
 
                                             <button className='btn btn-sm btn-danger' onClick={() => handleDeleteTask(task.id)}>Delete</button>
                                         </td>
