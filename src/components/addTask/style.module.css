@@ -1,0 +1,14 @@
+.btn {
+  border-radius: 5px;
+  color: #fff !important;
+  font-size: 15px;
+  font-weight: 500 !important;
+  background-color: #f8b600 !important;
+  border: 0;
+  padding: 6px;
+}
+.wrapper h4 {
+  text-align: center;
+  margin: 30px 0px;
+  font-family: "Playfair Display", serif;
+}
