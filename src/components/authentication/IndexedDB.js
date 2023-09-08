@@ -42,28 +42,6 @@ export async function openDatabase() {
 
 
 
-// export function openDatabase() {
-//     return new Promise((resolve, reject) => {
-//         const request = window.indexedDB.open(dbName, dbVersion);
-
-//         request.onerror = (event) => {
-//             console.error('Database error:', event.target.error);
-//             reject(event.target.error);
-//         };
-
-//         request.onsuccess = (event) => {
-//             db = event.target.result;
-//             resolve(db);
-//         };
-
-//         request.onupgradeneeded = (event) => {
-//             const db = event.target.result;
-//             const objectStore = db.createObjectStore('users', { keyPath: 'email' });
-//             objectStore.createIndex('username', 'email', { unique: true });
-//         };
-//     });
-// }
-
 export function addUser(user) {
     return new Promise(async (resolve, reject) => {
         if (!db) await openDatabase();
@@ -212,7 +190,7 @@ export async function updateTaskStatus(taskId, newStatus) {
 
 
 export async function addAssignee(data) {
-    console.log(data?.newAssignee);
+    // console.log(data?.newAssignee);
     const database = await openDatabase();
     const transaction = database.transaction(['tasks'], 'readwrite');
     const objectStore = transaction.objectStore('tasks');
