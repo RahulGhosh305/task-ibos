@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../shared/navbar';
 import { useForm } from "react-hook-form";
-import { addTeam, addTeamAssignee, getAllTasks, getAllTeams, getAllUsers, updateTeamTask } from '../authentication/IndexedDB';
+import { addTeam, addTeamAssignee, deleteTeam, getAllTasks, getAllTeams, getAllUsers, updateTeamTask } from '../authentication/IndexedDB';
 
 
 
@@ -97,7 +97,7 @@ const MakeTeam = () => {
     }
 
     const handleTaskChange = async (e, id) => {
-        console.log(id);
+        // console.log(id);
         const assignTask = e.target.value
 
         try {
@@ -134,6 +134,16 @@ const MakeTeam = () => {
         // fetchAllUsers()
     }
 
+    const handleDeleteTask = async (taskId) => {
+        console.log(taskId);
+        try {
+            // await deleteTask(taskId);
+            await deleteTeam(taskId);
+            updateTeams();
+        } catch (error) {
+            console.error('Error deleting task:', error);
+        }
+    };
     return (
         <div>
             <Navbar />
@@ -180,6 +190,7 @@ const MakeTeam = () => {
                                 <th scope="col">Team Name</th>
                                 <th scope="col">Team Members</th>
                                 <th scope="col">Task Assign</th>
+                                <th scope="col">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -203,6 +214,10 @@ const MakeTeam = () => {
                                                     </option>
                                                 ))}
                                             </select>}
+                                        </td>
+
+                                        <td>
+                                            <button className='btn btn-sm btn-danger' onClick={() => handleDeleteTask(team.teams)}>Delete</button>
                                         </td>
                                     </tr>
                                 )

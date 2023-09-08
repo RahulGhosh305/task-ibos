@@ -45,25 +45,6 @@ const Home = () => {
         fetchAllTasks();
     }
 
-    const onSubmit = async data => {
-        const task = {
-            ...data,
-            newAssignee: data.newAssignee,
-            id: addMemberId
-        }
-        // console.log(task)
-
-        try {
-            const result = await addAssignee(task);
-            resetField("newAssignee")
-            alert("Task Updated to IndexedDB")
-            updateTasks()
-        } catch (error) {
-            console.error('Error Updated task to IndexedDB:', error);
-        }
-    }
-
-
 
     useEffect(() => {
         fetchAllTasks();
@@ -96,11 +77,6 @@ const Home = () => {
             console.error('Error fetching all users:', error);
         }
     };
-
-    const addMember = (Id) => {
-        setAddMemberId(Id)
-        fetchAllUsers()
-    }
 
 
     const handleFilterTasks = async () => {
@@ -332,31 +308,6 @@ const Home = () => {
 
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </div>
-
-            {/* Modal */}
-            <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h1 className="modal-title fs-5" id="exampleModalLabel">Select One</h1>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">
-                            <form onSubmit={handleSubmit(onSubmit)}>
-                                <div className="d-flex align-items-center mx-1">
-                                    <select className="form-control mb-3" {...register("newAssignee")}>
-                                        <option>Assign To</option>
-                                        {users?.map((user) => {
-                                            return <option key={Math.random()} value={user.email}>{user.email}</option>
-                                        })}
-                                    </select>
-                                </div>
-                                <input type="submit" data-bs-dismiss="modal" className="btn btn-primary" />
-                            </form>
-                        </div>
                     </div>
                 </div>
             </div>

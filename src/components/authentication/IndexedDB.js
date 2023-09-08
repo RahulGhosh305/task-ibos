@@ -173,6 +173,21 @@ export async function deleteTask(taskId) {
 }
 
 
+export async function deleteTeam(teamId) {
+    const database = await openDatabase();
+
+    const transaction = database.transaction(['teams'], 'readwrite');
+    const objectStore = transaction.objectStore('teams');
+
+    const request = objectStore.delete(teamId);
+
+    return new Promise((resolve, reject) => {
+        request.onsuccess = () => resolve();
+        request.onerror = (event) => reject(event.error);
+    });
+}
+
+
 export async function updateTaskStatus(taskId, newStatus) {
     const database = await openDatabase();
 
