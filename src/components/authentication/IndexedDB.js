@@ -362,3 +362,29 @@ export async function getTasksByCustomPriority(sortDirection) {
         };
     });
 }
+
+
+export async function updateTeamTask(teamId, task) {
+    console.log(teamId, task);
+    const database = await openDatabase();
+    const transaction = database.transaction(['teams'], 'readwrite');
+    const objectStore = transaction.objectStore('teams');
+
+    const request = objectStore.get(teamId);
+
+    return new Promise((resolve, reject) => {
+        request.onsuccess = () => {
+            const team = request.result;
+            if (team) {
+                team.selectedTask = task;
+                const updateRequest = objectStore.put(team);
+                updateRequest.onsuccess = () => resolve(updateRequest.result);
+                updateRequest.onerror = (event) => reject(event.error);
+            } else {
+                reject(new Error('Team not found'));
+            }
+        };
+
+        request.onerror = (event) => reject(event.error);
+    });
+}

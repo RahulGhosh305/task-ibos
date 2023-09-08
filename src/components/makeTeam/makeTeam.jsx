@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../shared/navbar';
 import { useForm } from "react-hook-form";
-import { addTeam, getAllTeams, getAllUsers } from '../authentication/IndexedDB';
+import { addTeam, getAllTasks, getAllTeams, getAllUsers, updateTeamTask } from '../authentication/IndexedDB';
 
 
 
@@ -10,6 +10,8 @@ const MakeTeam = () => {
     const [selectedFruit, setSelectedFruit] = useState("");
     const [users, setUsers] = useState([]);
     const [teams, setTeams] = useState([]);
+    const [tasks, setTasks] = useState([]);
+    // const [selectedTask, setSelectedTask] = useState("");
 
     const { register, resetField, handleSubmit, formState: { errors } } = useForm({
         mode: "onChange",
@@ -47,6 +49,7 @@ const MakeTeam = () => {
             resetField("teamName")
             resetField("allMembers")
             updateTeams()
+            setSelectedFruits([])
             console.log('Team added to IndexedDB with ID:', result);
         } catch (error) {
             console.error('Error adding team to IndexedDB:', error);
@@ -72,12 +75,42 @@ const MakeTeam = () => {
         }
     };
 
+    const fetchAllTasks = async () => {
+        try {
+            const tasks = await getAllTasks();
+            setTasks(tasks);
+        } catch (error) {
+            console.error('Error fetching tasks:', error);
+        }
+    };
+
     useEffect(() => {
         fetchAllUsers();
         fetchAllTeams();
+        fetchAllTasks();
     }, []);
 
-    // console.log(teams);
+    // console.log(tasks);
+
+    const updateTasks = () => {
+        fetchAllTeams();
+    }
+
+    const handleTaskChange = async (e, id) => {
+        console.log(id);
+        const assignTask = e.target.value
+
+        try {
+            const result = await updateTeamTask(id, assignTask);
+            alert("Task Updated to IndexedDB")
+            updateTasks()
+            console.log('Task Updated to IndexedDB with ID:', result);
+        } catch (error) {
+            console.error('Error Updated task to IndexedDB:', error);
+        }
+    };
+
+
 
     return (
         <div>
@@ -124,6 +157,7 @@ const MakeTeam = () => {
                                 <th scope="col">No</th>
                                 <th scope="col">Team Name</th>
                                 <th scope="col">Team Members</th>
+                                <th scope="col">Task Assign</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -133,6 +167,17 @@ const MakeTeam = () => {
                                         <th scope="row">{team.teams}</th>
                                         <td>{team?.teamName}</td>
                                         <td>{team?.allMembers?.map((item) => <p key={Math.random()}>{item}</p>)}</td>
+                                        <td>
+                                            {team?.selectedTask}
+                                            {!team?.selectedTask && <select className='form-control' value={tasks.title} onChange={(e) => handleTaskChange(e, team.teams)}>
+                                                <option value="">Select a Task</option>
+                                                {tasks?.map((task) => (
+                                                    <option key={task.id} value={task.title}>
+                                                        {task.title}
+                                                    </option>
+                                                ))}
+                                            </select>}
+                                        </td>
                                     </tr>
                                 )
                             })}
