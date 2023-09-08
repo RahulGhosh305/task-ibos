@@ -229,8 +229,6 @@ const Home = () => {
                                                 {task?.assignedTo?.map(user => {
                                                     return <span key={Math.random()}>{user}<br /></span>
                                                 })}
-
-                                                {/* <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-info mt-3' onClick={() => addMember(task?.id)}>More Assigned</button> */}
                                             </td>
                                             <td>
                                                 {task?.status === "Completed" ? <button className={`me-2 btn btn-sm btn-secondary disabled`} onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button> : <button className='me-2 btn btn-sm btn-primary' onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button>}
@@ -260,10 +258,6 @@ const Home = () => {
                                             {dueDateFilterResult?.assignedTo?.map(user => {
                                                 return <span key={Math.random()}>{user}<br /></span>
                                             })}
-
-                                            {/* {
-                                                dueDateFilterResult && <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-info mt-3' onClick={() => addMember(dueDateFilterResult?.id)}>More Assigned</button>
-                                            } */}
                                         </td>
 
                                         {
@@ -295,8 +289,6 @@ const Home = () => {
                                                 {task?.assignedTo?.map(user => {
                                                     return <span key={Math.random()}>{user}<br /></span>
                                                 })}
-
-                                                {/* <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-info mt-3' onClick={() => addMember(task?.id)}>More Assigned</button> */}
                                             </td>
                                             <td>
                                                 {task?.status === "Completed" ? <button className={`me-2 btn btn-sm btn-secondary disabled`} onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button> : <button className='me-2 btn btn-sm btn-primary' onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button>}
@@ -326,8 +318,6 @@ const Home = () => {
                                                 {task?.assignedTo?.map(user => {
                                                     return <span key={Math.random()}>{user}<br /></span>
                                                 })}
-
-                                                {/* <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-info mt-3' onClick={() => addMember(task?.id)}>More Assigned</button> */}
                                             </td>
                                             <td>
                                                 {task?.status === "Completed" ? <button className={`me-2 btn btn-sm btn-secondary disabled`} onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button> : <button className='me-2 btn btn-sm btn-primary' onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button>}
