@@ -18,7 +18,13 @@ export async function openDatabase() {
 
             // Create the tasks object store
             if (!db.objectStoreNames.contains(TASKS_OBJECT_STORE)) {
-                db.createObjectStore(TASKS_OBJECT_STORE, { keyPath: 'id', autoIncrement: true });
+                const taskStore = db.createObjectStore(TASKS_OBJECT_STORE, { keyPath: 'id', autoIncrement: true });
+
+                // Create an index for the 'status' field
+                taskStore.createIndex('statusIndex', 'status', { unique: false });
+
+                // Create an index for the 'dueDate' field
+                taskStore.createIndex('dueDateIndex', 'dueDate', { unique: false });
             }
 
             // Create the users object store
@@ -240,6 +246,63 @@ export async function getAllTeams() {
         request.onsuccess = () => {
             const teams = request.result;
             resolve(teams);
+        };
+
+        request.onerror = (event) => {
+            reject(event.error);
+        };
+    });
+}
+
+
+
+export async function getTasksByStatus(status) {
+    const database = await openDatabase();
+    const transaction = database.transaction(['tasks'], 'readonly');
+    const objectStore = transaction.objectStore('tasks');
+    const index = objectStore.index('statusIndex');
+
+    const range = IDBKeyRange.only(status);
+    const request = index.openCursor(range);
+
+    return new Promise((resolve, reject) => {
+        const filteredTasks = [];
+
+        request.onsuccess = (event) => {
+            const cursor = event.target.result;
+            if (cursor) {
+                filteredTasks.push(cursor.value);
+                cursor.continue();
+            } else {
+                resolve(filteredTasks);
+            }
+        };
+
+        request.onerror = (event) => {
+            reject(event.error);
+        };
+    });
+}
+
+
+// Function to retrieve a task by due date
+export async function getTaskByDueDate(dueDate) {
+    const database = await openDatabase();
+    const transaction = database.transaction(['tasks'], 'readonly');
+    const objectStore = transaction.objectStore('tasks');
+    const index = objectStore.index('dueDateIndex');
+
+    const range = IDBKeyRange.only(dueDate);
+    const request = index.openCursor(range);
+
+    return new Promise((resolve, reject) => {
+        request.onsuccess = (event) => {
+            const cursor = event.target.result;
+            if (cursor) {
+                resolve(cursor.value);
+            } else {
+                resolve(null);
+            }
         };
 
         request.onerror = (event) => {
