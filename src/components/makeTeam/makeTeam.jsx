@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../shared/navbar';
 import { useForm } from "react-hook-form";
-import { addTeam, getAllTasks, getAllTeams, getAllUsers, updateTeamTask } from '../authentication/IndexedDB';
+import { addTeam, addTeamAssignee, getAllTasks, getAllTeams, getAllUsers, updateTeamTask } from '../authentication/IndexedDB';
 
 
 
@@ -11,7 +11,7 @@ const MakeTeam = () => {
     const [users, setUsers] = useState([]);
     const [teams, setTeams] = useState([]);
     const [tasks, setTasks] = useState([]);
-    // const [selectedTask, setSelectedTask] = useState("");
+    const [addMemberId, setAddMemberId] = useState();
 
     const { register, resetField, handleSubmit, formState: { errors } } = useForm({
         mode: "onChange",
@@ -110,7 +110,29 @@ const MakeTeam = () => {
         }
     };
 
+    const onModelSubmit = async data => {
+        console.log(data);
+        const newData = {
+            ...data,
+            newAssignee: data.newAssignee,
+            id: addMemberId
+        }
+        console.log(newData)
 
+        try {
+            const result = await addTeamAssignee(newData);
+            resetField("newAssignee")
+            alert("Task Updated to IndexedDB")
+            updateTasks()
+        } catch (error) {
+            console.error('Error Updated task to IndexedDB:', error);
+        }
+    }
+
+    const addMember = (Id) => {
+        setAddMemberId(Id)
+        // fetchAllUsers()
+    }
 
     return (
         <div>
@@ -166,7 +188,11 @@ const MakeTeam = () => {
                                     <tr className='align-items-center' key={Math.random()}>
                                         <th scope="row">{team.teams}</th>
                                         <td>{team?.teamName}</td>
-                                        <td>{team?.allMembers?.map((item) => <p key={Math.random()}>{item}</p>)}</td>
+                                        <td>
+                                            {team?.allMembers?.map((item) => <p key={Math.random()}>{item}</p>)}
+
+                                            <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-info mt-3' onClick={() => addMember(team?.teams)}>More Assigned</button>
+                                        </td>
                                         <td>
                                             {team?.selectedTask}
                                             {!team?.selectedTask && <select className='form-control' value={tasks.title} onChange={(e) => handleTaskChange(e, team.teams)}>
@@ -184,6 +210,31 @@ const MakeTeam = () => {
 
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            {/* Modal */}
+            <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h1 className="modal-title fs-5" id="exampleModalLabel">Select One</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            <form onSubmit={handleSubmit(onModelSubmit)}>
+                                <div className="d-flex align-items-center mx-1">
+                                    <select className="form-control mb-3" {...register("newAssignee")}>
+                                        <option>Assign To</option>
+                                        {users?.map((user) => {
+                                            return <option key={Math.random()} value={user.email}>{user.email}</option>
+                                        })}
+                                    </select>
+                                </div>
+                                <input type="submit" data-bs-dismiss="modal" className="btn btn-primary" />
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

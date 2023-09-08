@@ -388,3 +388,31 @@ export async function updateTeamTask(teamId, task) {
         request.onerror = (event) => reject(event.error);
     });
 }
+
+
+export async function addTeamAssignee(data) {
+    console.log(data);
+    const database = await openDatabase();
+    const transaction = database.transaction(['teams'], 'readwrite');
+    const objectStore = transaction.objectStore('teams');
+    const request = objectStore.get(data?.id);
+
+    return new Promise((resolve, reject) => {
+        request.onsuccess = () => {
+            const task = request.result;
+            if (task) {
+                if (!Array.isArray(task.allMembers)) {
+                    task.allMembers = [];
+                }
+                task.allMembers.push(data?.newAssignee);
+                const updateRequest = objectStore.put(task);
+                updateRequest.onsuccess = () => resolve(updateRequest.result);
+                updateRequest.onerror = (event) => reject(event.error);
+            } else {
+                reject(new Error('Team not found'));
+            }
+        };
+
+        request.onerror = (event) => reject(event.error);
+    });
+}
