@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Navbar from '../shared/navbar';
 import styles from "./homeStyle.module.css";
 import { useNavigate } from 'react-router-dom';
-import { addAssignee, deleteTask, getAllTasks, getAllUsers, getTaskByDueDate, getTasksByStatus, updateTaskStatus } from '../authentication/IndexedDB';
+import { addAssignee, deleteTask, getAllTasks, getAllUsers, getTaskByDueDate, getTasksByCustomPriority, getTasksByStatus, updateTaskStatus } from '../authentication/IndexedDB';
 import { AiOutlineCheck, AiOutlineArrowRight } from 'react-icons/ai';
 import { useForm } from "react-hook-form";
 
@@ -18,8 +18,8 @@ const Home = () => {
     const [statusFilterResult, setStatusFilterResult] = useState([]);
     const [dueDateFilterResult, setDueDateFilterResult] = useState(null);
 
-
-
+    const [sort, setSort] = useState('');
+    const [sortResult, setSortResult] = useState([]);
 
     const addNewTask = () => {
         navigate("/addTask")
@@ -122,215 +122,228 @@ const Home = () => {
                 setDueDateFilter("")
             }
         }
+    };
 
-        // console.log('filteredTasks:', filteredTasks);
-        // console.log('filteredDate:', filteredDate);
+    const handleSortTasks = async () => {
+        let sortData = []
+        // console.log(sort);
+        if (sort) {
+            sortData = await getTasksByCustomPriority(sort);
+            setSortResult(sortData)
+            if (!sortData.length) {
+                alert("No Filter Data Found")
+                setSort("")
+            }
+        }
     };
 
     // console.log(statusFilterResult);
     // console.log(dueDateFilterResult);
-
-
     // console.log(tasks);
+    console.log(sortResult);
+
+
+
     return (
         <div>
             <Navbar />
             <div className="container">
-                <button onClick={addNewTask} className={`btn mt-3 ${styles.btn}`} >Add New Task</button>
 
-                <div className='mt-4'>
-                    <div className='d-flex'>
-                        <div className='me-5'>
-                            Filter by Status
+                {/* Header Functionality */}
+                <button onClick={addNewTask} className={`btn mt-3 ${styles.btn}`} >Add New Task</button>
+                <div className='d-flex justify-content-between'>
+                    <div className='mt-4'>
+                        <div className='d-flex'>
+                            <div className='me-5'>
+                                Filter by Status
+                                <label className='ms-2'>
+                                    <select className='form-control' value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                                        <option value="">Filter Status</option>
+                                        <option value="Completed">Completed</option>
+                                        <option value="In Progress">In Progress</option>
+                                        <option value="Pending">Pending</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div>
+                                <strong className='me-5'>Or</strong> Filter by Due Date
+                                <label className='ms-2'>
+                                    <input className='form-control' type="date" value={dueDateFilter} onChange={(e) => setDueDateFilter(e.target.value)} />
+                                </label>
+                            </div>
+                        </div>
+
+                        <button className='btn btn-sm btn-primary mt-3' onClick={handleFilterTasks}>Filter</button>
+
+                    </div>
+
+
+                    <div className='mt-4'>
+                        <div className='d-flex'>
                             <label className='ms-2'>
-                                <select className='form-control' value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                                    <option value="">Select</option>
-                                    <option value="Completed">Completed</option>
-                                    <option value="In Progress">In Progress</option>
-                                    <option value="Pending">Pending</option>
+                                <select className='form-control' value={sort} onChange={(e) => setSort(e.target.value)}>
+                                    <option value="">Sort Order</option>
+                                    <option value="asc">Low - Moderate - Top</option>
+                                    <option value="desc">Top - Moderate - Low</option>
                                 </select>
                             </label>
                         </div>
-                        <div>
-                            <strong className='me-5'>Or</strong> Filter by Due Date
-                            <label className='ms-2'>
-                                <input className='form-control' type="date" value={dueDateFilter} onChange={(e) => setDueDateFilter(e.target.value)} />
-                            </label>
+                        <div className='d-flex justify-content-end'>
+                            <button className='btn btn-sm btn-primary mt-3' onClick={handleSortTasks}>Sort</button>
                         </div>
                     </div>
-                    <button className='btn btn-sm btn-primary mt-3' onClick={handleFilterTasks}>Filter</button>
                 </div>
 
 
-                {
-                    <div className="container">
-                        <div className="row mt-5">
-                            <table className="table table-responsive text-center">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Priority</th>
-                                        <th scope="col">Title</th>
-                                        <th scope="col">Description</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Mark</th>
-                                        <th scope="col">Due Date</th>
-                                        <th scope="col">Assign</th>
-                                        <th scope="col">action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {
-                                        statusFilterResult?.map((task) => {
-                                            return <tr key={task.id}>
-                                                <th scope="row">{task?.Priority}</th>
-                                                <td>{task?.title}</td>
-                                                <td>{task?.description}</td>
-                                                <td className='fw-bold'>{task?.status}</td>
-                                                <td>
-                                                    {task?.status === "Completed" && <AiOutlineCheck />}
-                                                    {task?.status === "In Progress" && <AiOutlineArrowRight />}
-                                                </td>
-                                                <td>{task?.dueDate}</td>
-                                                <td>
-                                                    {task?.assignedTo?.map(user => {
-                                                        return <span key={Math.random()}>{user}<br /></span>
-                                                    })}
-
-                                                    <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-info mt-3' onClick={() => addMember(task?.id)}>More Assigned</button>
-                                                </td>
-                                                <td>
-                                                    {task?.status === "Completed" ? <button className={`me-2 btn btn-sm btn-secondary disabled`} onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button> : <button className='me-2 btn btn-sm btn-primary' onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button>}
-
-                                                    <button className='me-2 btn btn-sm btn-success' onClick={() => handleTaskStatusChange(task?.id, "Completed")}>Completed</button>
-
-                                                    <button className='btn btn-sm btn-danger' onClick={() => handleDeleteTask(task.id)}>Delete</button>
-                                                </td>
-                                            </tr>
-                                        })
-                                    }
-
-                                    {
-
-                                        dueDateFilterResult !== null &&
-                                        <tr key={dueDateFilterResult?.id}>
-                                            <th scope="row">{dueDateFilterResult?.Priority}</th>
-                                            <td>{dueDateFilterResult?.title}</td>
-                                            <td>{dueDateFilterResult?.description}</td>
-                                            <td className='fw-bold'>{dueDateFilterResult?.status}</td>
+                {/* Table Start */}
+                <div className="container">
+                    <div className="row mt-5">
+                        <table className="table table-responsive text-center">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Priority</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Mark</th>
+                                    <th scope="col">Due Date</th>
+                                    <th scope="col">Assign</th>
+                                    <th scope="col">action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {/* Filter By Status */}
+                                {
+                                    statusFilterResult?.map((task) => {
+                                        return <tr key={task.id}>
+                                            <th scope="row">{task?.Priority}</th>
+                                            <td>{task?.title}</td>
+                                            <td>{task?.description}</td>
+                                            <td className='fw-bold'>{task?.status}</td>
                                             <td>
-                                                {dueDateFilterResult?.status === "Completed" && <AiOutlineCheck />}
-                                                {dueDateFilterResult?.status === "In Progress" && <AiOutlineArrowRight />}
+                                                {task?.status === "Completed" && <AiOutlineCheck />}
+                                                {task?.status === "In Progress" && <AiOutlineArrowRight />}
                                             </td>
-                                            <td>{dueDateFilterResult?.dueDate}</td>
+                                            <td>{task?.dueDate}</td>
                                             <td>
-                                                {dueDateFilterResult?.assignedTo?.map(user => {
+                                                {task?.assignedTo?.map(user => {
                                                     return <span key={Math.random()}>{user}<br /></span>
                                                 })}
 
-                                                {
-                                                    dueDateFilterResult && <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-info mt-3' onClick={() => addMember(dueDateFilterResult?.id)}>More Assigned</button>
-                                                }
+                                                <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-info mt-3' onClick={() => addMember(task?.id)}>More Assigned</button>
                                             </td>
+                                            <td>
+                                                {task?.status === "Completed" ? <button className={`me-2 btn btn-sm btn-secondary disabled`} onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button> : <button className='me-2 btn btn-sm btn-primary' onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button>}
 
-                                            {
-                                                dueDateFilterResult && <td>
-                                                    {dueDateFilterResult?.status === "Completed" ? <button className={`me-2 btn btn-sm btn-secondary disabled`} onClick={() => handleTaskStatusChange(dueDateFilterResult?.id, "In Progress")}>Progress</button> : <button className='me-2 btn btn-sm btn-primary' onClick={() => handleTaskStatusChange(dueDateFilterResult?.id, "In Progress")}>Progress</button>}
+                                                <button className='me-2 btn btn-sm btn-success' onClick={() => handleTaskStatusChange(task?.id, "Completed")}>Completed</button>
 
-                                                    <button className='me-2 btn btn-sm btn-success' onClick={() => handleTaskStatusChange(dueDateFilterResult?.id, "Completed")}>Completed</button>
-
-                                                    <button className='btn btn-sm btn-danger' onClick={() => handleDeleteTask(dueDateFilterResult.id)}>Delete</button>
-                                                </td>
-                                            }
+                                                <button className='btn btn-sm btn-danger' onClick={() => handleDeleteTask(task.id)}>Delete</button>
+                                            </td>
                                         </tr>
+                                    })
+                                }
 
-                                    }
-
-
-                                    {
-                                        statusFilterResult.length == 0 && dueDateFilterResult === null && tasks?.map((task) => {
-                                            return <tr key={task.id}>
-                                                <th scope="row">{task?.Priority}</th>
-                                                <td>{task?.title}</td>
-                                                <td>{task?.description}</td>
-                                                <td className='fw-bold'>{task?.status}</td>
-                                                <td>
-                                                    {task?.status === "Completed" && <AiOutlineCheck />}
-                                                    {task?.status === "In Progress" && <AiOutlineArrowRight />}
-                                                </td>
-                                                <td>{task?.dueDate}</td>
-                                                <td>
-                                                    {task?.assignedTo?.map(user => {
-                                                        return <span key={Math.random()}>{user}<br /></span>
-                                                    })}
-
-                                                    <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-info mt-3' onClick={() => addMember(task?.id)}>More Assigned</button>
-                                                </td>
-                                                <td>
-                                                    {task?.status === "Completed" ? <button className={`me-2 btn btn-sm btn-secondary disabled`} onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button> : <button className='me-2 btn btn-sm btn-primary' onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button>}
-
-                                                    <button className='me-2 btn btn-sm btn-success' onClick={() => handleTaskStatusChange(task?.id, "Completed")}>Completed</button>
-
-                                                    <button className='btn btn-sm btn-danger' onClick={() => handleDeleteTask(task.id)}>Delete</button>
-                                                </td>
-                                            </tr>
-                                        })
-                                    }
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                }
-
-                {/* <div className="row">
-                    <table className="mt-5 table table-responsive text-center">
-                        <thead>
-                            <tr>
-                                <th scope="col">Priority</th>
-                                <th scope="col">Title</th>
-                                <th scope="col">Description</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Mark</th>
-                                <th scope="col">Due Date</th>
-                                <th scope="col">Assign</th>
-                                <th scope="col">action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {
-                                tasks?.map((task) => {
-                                    return <tr key={task.id}>
-                                        <th scope="row">{task?.Priority}</th>
-                                        <td>{task?.title}</td>
-                                        <td>{task?.description}</td>
-                                        <td className='fw-bold'>{task?.status}</td>
+                                {/* Filter By Date */}
+                                {
+                                    dueDateFilterResult !== null &&
+                                    <tr key={dueDateFilterResult?.id}>
+                                        <th scope="row">{dueDateFilterResult?.Priority}</th>
+                                        <td>{dueDateFilterResult?.title}</td>
+                                        <td>{dueDateFilterResult?.description}</td>
+                                        <td className='fw-bold'>{dueDateFilterResult?.status}</td>
                                         <td>
-                                            {task?.status === "Completed" && <AiOutlineCheck />}
-                                            {task?.status === "In Progress" && <AiOutlineArrowRight />}
+                                            {dueDateFilterResult?.status === "Completed" && <AiOutlineCheck />}
+                                            {dueDateFilterResult?.status === "In Progress" && <AiOutlineArrowRight />}
                                         </td>
-                                        <td>{task?.dueDate}</td>
+                                        <td>{dueDateFilterResult?.dueDate}</td>
                                         <td>
-                                            {task?.assignedTo?.map(user => {
+                                            {dueDateFilterResult?.assignedTo?.map(user => {
                                                 return <span key={Math.random()}>{user}<br /></span>
                                             })}
 
-                                            <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-info mt-3' onClick={() => addMember(task?.id)}>More Assigned</button>
+                                            {
+                                                dueDateFilterResult && <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-info mt-3' onClick={() => addMember(dueDateFilterResult?.id)}>More Assigned</button>
+                                            }
                                         </td>
-                                        <td>
-                                            {task?.status === "Completed" ? <button className={`me-2 btn btn-sm btn-secondary disabled`} onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button> : <button className='me-2 btn btn-sm btn-primary' onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button>}
 
-                                            <button className='me-2 btn btn-sm btn-success' onClick={() => handleTaskStatusChange(task?.id, "Completed")}>Completed</button>
+                                        {
+                                            dueDateFilterResult && <td>
+                                                {dueDateFilterResult?.status === "Completed" ? <button className={`me-2 btn btn-sm btn-secondary disabled`} onClick={() => handleTaskStatusChange(dueDateFilterResult?.id, "In Progress")}>Progress</button> : <button className='me-2 btn btn-sm btn-primary' onClick={() => handleTaskStatusChange(dueDateFilterResult?.id, "In Progress")}>Progress</button>}
 
-                                            <button className='btn btn-sm btn-danger' onClick={() => handleDeleteTask(task.id)}>Delete</button>
-                                        </td>
+                                                <button className='me-2 btn btn-sm btn-success' onClick={() => handleTaskStatusChange(dueDateFilterResult?.id, "Completed")}>Completed</button>
+
+                                                <button className='btn btn-sm btn-danger' onClick={() => handleDeleteTask(dueDateFilterResult.id)}>Delete</button>
+                                            </td>
+                                        }
                                     </tr>
-                                })
-                            }
+                                }
 
-                        </tbody>
-                    </table>
-                </div> */}
+                                {/* Sort Order */}
+                                {
+                                    sortResult?.map((task) => {
+                                        return <tr key={task.id}>
+                                            <th scope="row">{task?.Priority}</th>
+                                            <td>{task?.title}</td>
+                                            <td>{task?.description}</td>
+                                            <td className='fw-bold'>{task?.status}</td>
+                                            <td>
+                                                {task?.status === "Completed" && <AiOutlineCheck />}
+                                                {task?.status === "In Progress" && <AiOutlineArrowRight />}
+                                            </td>
+                                            <td>{task?.dueDate}</td>
+                                            <td>
+                                                {task?.assignedTo?.map(user => {
+                                                    return <span key={Math.random()}>{user}<br /></span>
+                                                })}
 
+                                                <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-info mt-3' onClick={() => addMember(task?.id)}>More Assigned</button>
+                                            </td>
+                                            <td>
+                                                {task?.status === "Completed" ? <button className={`me-2 btn btn-sm btn-secondary disabled`} onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button> : <button className='me-2 btn btn-sm btn-primary' onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button>}
+
+                                                <button className='me-2 btn btn-sm btn-success' onClick={() => handleTaskStatusChange(task?.id, "Completed")}>Completed</button>
+
+                                                <button className='btn btn-sm btn-danger' onClick={() => handleDeleteTask(task.id)}>Delete</button>
+                                            </td>
+                                        </tr>
+                                    })
+                                }
+
+                                {/* All Task Form IndexedDb local Machine */}
+                                {
+                                    statusFilterResult.length == 0 && sortResult.length == 0 && dueDateFilterResult === null && tasks?.map((task) => {
+                                        return <tr key={task.id}>
+                                            <th scope="row">{task?.Priority}</th>
+                                            <td>{task?.title}</td>
+                                            <td>{task?.description}</td>
+                                            <td className='fw-bold'>{task?.status}</td>
+                                            <td>
+                                                {task?.status === "Completed" && <AiOutlineCheck />}
+                                                {task?.status === "In Progress" && <AiOutlineArrowRight />}
+                                            </td>
+                                            <td>{task?.dueDate}</td>
+                                            <td>
+                                                {task?.assignedTo?.map(user => {
+                                                    return <span key={Math.random()}>{user}<br /></span>
+                                                })}
+
+                                                <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" className='btn btn-sm btn-info mt-3' onClick={() => addMember(task?.id)}>More Assigned</button>
+                                            </td>
+                                            <td>
+                                                {task?.status === "Completed" ? <button className={`me-2 btn btn-sm btn-secondary disabled`} onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button> : <button className='me-2 btn btn-sm btn-primary' onClick={() => handleTaskStatusChange(task?.id, "In Progress")}>Progress</button>}
+
+                                                <button className='me-2 btn btn-sm btn-success' onClick={() => handleTaskStatusChange(task?.id, "Completed")}>Completed</button>
+
+                                                <button className='btn btn-sm btn-danger' onClick={() => handleDeleteTask(task.id)}>Delete</button>
+                                            </td>
+                                        </tr>
+                                    })
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             {/* Modal */}
@@ -352,14 +365,12 @@ const Home = () => {
                                     </select>
                                 </div>
                                 <input type="submit" data-bs-dismiss="modal" className="btn btn-primary" />
-
                             </form>
                         </div>
-
                     </div>
                 </div>
             </div>
-            {/*  */}
+
         </div>
     );
 };

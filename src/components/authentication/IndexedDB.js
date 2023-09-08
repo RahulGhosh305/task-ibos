@@ -25,6 +25,9 @@ export async function openDatabase() {
 
                 // Create an index for the 'dueDate' field
                 taskStore.createIndex('dueDateIndex', 'dueDate', { unique: false });
+
+                // Create an index for the 'priority' field
+                taskStore.createIndex('priorityIndex', 'Priority', { unique: false });
             }
 
             // Create the users object store
@@ -302,6 +305,55 @@ export async function getTaskByDueDate(dueDate) {
                 resolve(cursor.value);
             } else {
                 resolve(null);
+            }
+        };
+
+        request.onerror = (event) => {
+            reject(event.error);
+        };
+    });
+}
+
+
+
+
+// Function to retrieve tasks sorted by custom priority in ascending or descending order
+export async function getTasksByCustomPriority(sortDirection) {
+    const database = await openDatabase();
+    const transaction = database.transaction(['tasks'], 'readonly');
+    const objectStore = transaction.objectStore('tasks');
+    const index = objectStore.index('priorityIndex');
+
+    const sortOrder = sortDirection === 'asc' ? 'next' : 'prev';
+
+    const request = index.openCursor(null, sortOrder);
+
+    return new Promise((resolve, reject) => {
+        const sortedTasks = [];
+
+        request.onsuccess = (event) => {
+            const cursor = event.target.result;
+            if (cursor) {
+                sortedTasks.push(cursor.value);
+                cursor.continue();
+            } else {
+                // Sort the tasks by priority
+                sortedTasks.sort((a, b) => {
+                    const priorityOrder = {
+                        'Top': 1,
+                        'Moderate': 2,
+                        'Low': 3,
+                    };
+
+                    if (sortDirection === 'asc') {
+                        return priorityOrder[a.priority] - priorityOrder[b.priority];
+                    } else {
+                        return priorityOrder[b.priority] - priorityOrder[a.priority];
+                    }
+                });
+
+                resolve(sortedTasks);
+                console.log(sortedTasks);
             }
         };
 
