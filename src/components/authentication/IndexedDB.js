@@ -128,7 +128,7 @@ export function getAllUsers() {
 
 
 export async function addTask(task) {
-    console.log('task', task);
+    // console.log('task', task);
     const database = await openDatabase();
 
     const transaction = database.transaction(['tasks'], 'readwrite');
@@ -368,7 +368,7 @@ export async function getTasksByCustomPriority(sortDirection) {
                 });
 
                 resolve(sortedTasks);
-                console.log(sortedTasks);
+                // console.log(sortedTasks);
             }
         };
 
@@ -380,7 +380,7 @@ export async function getTasksByCustomPriority(sortDirection) {
 
 
 export async function updateTeamTask(teamId, task) {
-    console.log(teamId, task);
+    // console.log(teamId, task);
     const database = await openDatabase();
     const transaction = database.transaction(['teams'], 'readwrite');
     const objectStore = transaction.objectStore('teams');
@@ -406,7 +406,7 @@ export async function updateTeamTask(teamId, task) {
 
 
 export async function addTeamAssignee(data) {
-    console.log(data);
+    // console.log(data);
     const database = await openDatabase();
     const transaction = database.transaction(['teams'], 'readwrite');
     const objectStore = transaction.objectStore('teams');

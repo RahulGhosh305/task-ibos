@@ -113,10 +113,8 @@ const Home = () => {
         }
     };
 
-    // console.log(statusFilterResult);
-    // console.log(dueDateFilterResult);
     // console.log(tasks);
-    console.log(sortResult);
+    // console.log(sortResult);
 
 
 

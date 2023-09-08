@@ -12,12 +12,10 @@ import MakeTeam from '../makeTeam/makeTeam';
 const AllRoutes = () => {
     return (
         <Routes>
-            <Route path="/" element={<Home />} />
-            {/* <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} /> */}
-            <Route path="/about" element={<PrivateRoute> <About /> </PrivateRoute>} />
-            {/* <Route path="/addTask" element={<PrivateRoute> <AddTask /> </PrivateRoute>} /> */}
-            <Route path="/addTask" element={<AddTask />} />
-            <Route path="/makeTeam" element={<MakeTeam />} />
+            <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+            <Route path="/about" element={<PrivateRoute><About /></PrivateRoute>} />
+            <Route path="/addTask" element={<PrivateRoute><AddTask /></PrivateRoute>} />
+            <Route path="/makeTeam" element={<PrivateRoute><MakeTeam /></PrivateRoute>} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
         </Routes>

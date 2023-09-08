@@ -6,7 +6,7 @@ import Navbar from '../shared/navbar';
 
 const About = () => {
     const { isLoggedIn } = useAuth()
-    console.log(isLoggedIn);
+
     const { name, bio, email, imageURL } = isLoggedIn
     return (
         <div>
