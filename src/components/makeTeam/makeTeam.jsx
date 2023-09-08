@@ -105,7 +105,6 @@ const MakeTeam = () => {
                         </div>
                         <br />
 
-                        <input type="submit" data-bs-dismiss="modal" className="btn btn-primary" />
 
 
                         <p>Selected Members:</p>
@@ -114,6 +113,8 @@ const MakeTeam = () => {
                                 <li key={index}>{fruit}</li>
                             ))}
                         </ul>
+
+                        <input type="submit" data-bs-dismiss="modal" className="btn btn-primary" />
                     </form>
 
                     <h4 className='mt-5'>All Teams</h4>
