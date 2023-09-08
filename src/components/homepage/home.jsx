@@ -110,6 +110,10 @@ const Home = () => {
         if (statusFilter) {
             filteredTasks = await getTasksByStatus(statusFilter);
             setStatusFilterResult(filteredTasks)
+            if (!filteredTasks.length) {
+                alert("No Filter Data Found")
+                setStatusFilter("")
+            }
         } else if (dueDateFilter) {
             filteredDate = await getTaskByDueDate(dueDateFilter);
             setDueDateFilterResult(filteredDate)
