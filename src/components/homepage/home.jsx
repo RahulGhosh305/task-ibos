@@ -92,7 +92,7 @@ const Home = () => {
         fetchAllUsers()
     }
 
-    console.log(tasks);
+    // console.log(tasks);
     return (
         <div>
             <Navbar />

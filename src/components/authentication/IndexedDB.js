@@ -6,6 +6,7 @@ const DB_NAME = 'ManagementDatabase';
 const DB_VERSION = 1;
 const TASKS_OBJECT_STORE = 'tasks';
 const USERS_OBJECT_STORE = 'users';
+const TEAMS_OBJECT_STORE = 'teams';
 
 
 export async function openDatabase() {
@@ -17,12 +18,17 @@ export async function openDatabase() {
 
             // Create the tasks object store
             if (!db.objectStoreNames.contains(TASKS_OBJECT_STORE)) {
-                db.createObjectStore(TASKS_OBJECT_STORE, { keyPath: 'id' });
+                db.createObjectStore(TASKS_OBJECT_STORE, { keyPath: 'id', autoIncrement: true });
             }
 
             // Create the users object store
             if (!db.objectStoreNames.contains(USERS_OBJECT_STORE)) {
                 db.createObjectStore(USERS_OBJECT_STORE, { keyPath: 'email' });
+            }
+
+            // Create the users object store
+            if (!db.objectStoreNames.contains(TEAMS_OBJECT_STORE)) {
+                db.createObjectStore(TEAMS_OBJECT_STORE, { keyPath: 'teams', autoIncrement: true });
             }
         };
 
@@ -135,7 +141,7 @@ export function getAllUsers() {
 
 
 export async function addTask(task) {
-    // console.log('task', task);
+    console.log('task', task);
     const database = await openDatabase();
 
     const transaction = database.transaction(['tasks'], 'readwrite');
@@ -205,11 +211,6 @@ export async function updateTaskStatus(taskId, newStatus) {
 }
 
 
-
-// indexedDB.js
-
-// ... (other code)
-
 export async function addAssignee(data) {
     console.log(data?.newAssignee);
     const database = await openDatabase();
@@ -237,3 +238,34 @@ export async function addAssignee(data) {
     });
 }
 
+
+export async function addTeam(team) {
+    const database = await openDatabase();
+    const transaction = database.transaction(['teams'], 'readwrite');
+    const objectStore = transaction.objectStore('teams');
+    const request = objectStore.add(team);
+
+    return new Promise((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = (event) => reject(event.error);
+    });
+}
+
+
+export async function getAllTeams() {
+    const database = await openDatabase();
+    const transaction = database.transaction(['teams'], 'readonly');
+    const objectStore = transaction.objectStore('teams');
+    const request = objectStore.getAll();
+
+    return new Promise((resolve, reject) => {
+        request.onsuccess = () => {
+            const teams = request.result;
+            resolve(teams);
+        };
+
+        request.onerror = (event) => {
+            reject(event.error);
+        };
+    });
+}

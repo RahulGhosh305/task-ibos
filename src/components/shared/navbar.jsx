@@ -30,6 +30,9 @@ const Navbar = () => {
                         <li className="nav-item">
                             <NavLink className={({ isActive }) => (isActive ? `nav-link ${styles.isActive}` : `nav-link ${styles.inActive}`)} to='/about'>About</NavLink>
                         </li>
+                        <li className="nav-item">
+                            <NavLink className={({ isActive }) => (isActive ? `nav-link ${styles.isActive}` : `nav-link ${styles.inActive}`)} to='/makeTeam'>Make A Team</NavLink>
+                        </li>
                     </ul>
                     <div>
 

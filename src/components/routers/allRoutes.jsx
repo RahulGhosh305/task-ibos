@@ -7,6 +7,7 @@ import SignIn from '../authentication/signIn';
 import SignUp from '../authentication/signup';
 import PrivateRoute from '../authentication/PrivateRoute';
 import AddTask from '../addTask/addTask';
+import MakeTeam from '../makeTeam/makeTeam';
 
 const AllRoutes = () => {
     return (
@@ -16,6 +17,7 @@ const AllRoutes = () => {
             <Route path="/about" element={<PrivateRoute> <About /> </PrivateRoute>} />
             {/* <Route path="/addTask" element={<PrivateRoute> <AddTask /> </PrivateRoute>} /> */}
             <Route path="/addTask" element={<AddTask />} />
+            <Route path="/makeTeam" element={<MakeTeam />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
         </Routes>
